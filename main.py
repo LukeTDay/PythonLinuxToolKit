@@ -1,4 +1,4 @@
-from modules import system_info
+from modules import system_info, process_manager
 from utils import helpers
 
 def print_main_menu() -> str:
@@ -17,8 +17,7 @@ if __name__ == "__main__":
         if choice == "1":
             system_info.menu()
         elif choice == "2":
-            #process_manager.menu()
-            pass
+            process_manager.menu()
         elif choice == "3":
             #file_organizer.menu()
             pass
