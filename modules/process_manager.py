@@ -2,22 +2,78 @@ import psutil
 import time
 from utils import helpers
 def print_running_processes() -> None:
-    helpers.clear_console()
+    helpers.clear_console(duration=0)
     #This has to be done for CPU to be calculated correctly
     for proc in psutil.process_iter():
         proc.cpu_percent(interval=0)
         for child in proc.children():
             child.cpu_percent(interval=0)
     time.sleep(1)
+
     for proc in psutil.process_iter(['pid', 'name', 'status','cpu_percent']):
-        print(f"NAME : {proc.info["name"]:<50} CPU % : {proc.info["cpu_percent"]:<7.2f}% PID : {proc.info["pid"]:<10} STATUS : {proc.info["status"]:<10}")
+        print(f"NAME : {(proc.info["name"])[:30]:<30} CPU % : {proc.info["cpu_percent"]:<7.2f}% PID : {proc.info["pid"]:<10} STATUS : {proc.info["status"]:<10}")
         #print(proc.info)
         for child in proc.children():
-            print(f"   CHILD : NAME : {child.name():<39} CPU % : {child.cpu_percent():<7.2f}% PID : {child.pid:<10}")
+            print(f"   NAME : {(child.name())[:27]:<27} CPU % : {child.cpu_percent():<7.2f}% PID : {child.pid:<10}")
         if proc.children():
             print()
     input("\nEnter to return...")
     return
+
+def kill_running_process() -> None:
+    helpers.clear_console()
+    print(f"Kill Running Process...\n")
+
+    process_to_kill_PID = int(input("Please enter the PID of the process you would like to kill: "))
+    try:
+        process_to_kill = psutil.Process(process_to_kill_PID)
+    except psutil.NoSuchProcess as e:
+        print(f"\nThere is no such process with the PID: {process_to_kill_PID}")
+        print(f"Error: {e}")
+        print(f"\nReturning to process manager in 3 seconds)")
+        time.sleep(3)
+        return
+
+    helpers.clear_console()
+    print(f"Name: {process_to_kill.name()}")
+    print(f"PID : {process_to_kill.pid}")
+    try:
+        print(f"Mem : {process_to_kill.memory_percent():.2f}%")
+    except psutil.AccessDenied:
+        print(f"Mem : Mem could not be accessed")
+
+    for child in process_to_kill.children():
+        print(f" Child: ")
+        print(f"  Name: {child.name()}")
+        print(f"  PID : {child.pid}")
+        try:
+            print(f"  Mem : {child.memory_percent():.2f}%")
+        except psutil.AccessDenied:
+            print(f"  Mem : Mem could not be accessed")
+    while True:
+        choice : str = input(f"Are you sure you would like to end this process? 'Y' / 'N': ")
+        if choice.lower() == "y":
+            #Allow the program to terminate gracefully
+            print(f"Sending SIG TERM")
+            process_to_kill.terminate()
+            process_exit_code = None
+            try:
+                process_exit_code = process_to_kill.wait(timeout=3)
+            except psutil.TimeoutExpired:
+                print(f"Sending SIG KILL")
+                process_to_kill.kill()
+            if process_exit_code: 
+                print(f"Process terminated gracefully with exit code {process_exit_code}")
+            else:
+                print(f"Process was forcefully terminated")
+            time.sleep(2)
+            return
+        elif choice.lower() == "n":
+            print(f"Operation Aborted returning to menu")
+            time.sleep(2)
+            return
+        else:
+            print(f"Invalid Choice")
 
 
 def menu() -> None:
@@ -32,6 +88,8 @@ def menu() -> None:
         choice = input("Please enter your choice: ")
         if choice == "1":
             print_running_processes()
+        elif choice == "2":
+            kill_running_process()
         elif choice == "4":
             return
         else:
