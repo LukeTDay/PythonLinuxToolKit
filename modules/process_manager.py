@@ -1,9 +1,21 @@
 import psutil
+import time
 from utils import helpers
 def print_running_processes() -> None:
     helpers.clear_console()
-    for proc in psutil.process_iter(['pid', 'name', 'status']):
-        print(f"NAME : {proc.info["name"]:<50} PID : {proc.info["pid"]:<10} STATUS : {proc.info["status"]:<10}")
+    #This has to be done for CPU to be calculated correctly
+    for proc in psutil.process_iter():
+        proc.cpu_percent(interval=0)
+        for child in proc.children():
+            child.cpu_percent(interval=0)
+    time.sleep(1)
+    for proc in psutil.process_iter(['pid', 'name', 'status','cpu_percent']):
+        print(f"NAME : {proc.info["name"]:<50} CPU % : {proc.info["cpu_percent"]:<7.2f}% PID : {proc.info["pid"]:<10} STATUS : {proc.info["status"]:<10}")
+        #print(proc.info)
+        for child in proc.children():
+            print(f"   CHILD : NAME : {child.name():<39} CPU % : {child.cpu_percent():<7.2f}% PID : {child.pid:<10}")
+        if proc.children():
+            print()
     input("\nEnter to return...")
     return
 
@@ -20,7 +32,6 @@ def menu() -> None:
         choice = input("Please enter your choice: ")
         if choice == "1":
             print_running_processes()
-            pass
         elif choice == "4":
             return
         else:
