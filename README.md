@@ -1,4 +1,4 @@
-# PythonLinuxTollkit
+# PythonLinuxToolKit
 Linux utilies written in python
 
 The goal of this project is to create useful utilies for my Linux device using python
