@@ -1,8 +1,7 @@
 # PythonLinuxToolKit
 Linux utilies written in python
 
-The goal of this project is to create useful utilies for my Linux device using python
-I am currently using Debian 13 with i3 as my window manager.
+The goal of this project is to create useful utilies for my Linux laptop using python
 
 For this project to be considered succesful I need to gather and display...
 
