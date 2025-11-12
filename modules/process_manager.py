@@ -1,6 +1,9 @@
 import psutil
 import time
+import curses
 from utils import helpers
+from rapidfuzz import fuzz
+
 def print_running_processes() -> None:
     helpers.clear_console(duration=0)
     #This has to be done for CPU to be calculated correctly
@@ -75,6 +78,41 @@ def kill_running_process() -> None:
         else:
             print(f"Invalid Choice")
 
+def search_running_processes(stdscr) -> None:
+    curses.cbreak()
+    stdscr.nodelay(True)
+    search_stack = ""
+
+    procs = [(p.pid, p.name()) for p in psutil.process_iter(['pid','name'])]
+
+    while True:
+        #This key is returned in unicode format
+        key = stdscr.getch()
+        #ord converts the character ! into unicode so it can be effectively compared
+        if key == ord('!'): 
+            break
+        elif key == curses.KEY_BACKSPACE:
+            search_stack = search_stack[:-1]
+        #A -1 is returned when nothing is pressed so this captures anything that is not nothing
+        elif key != -1: 
+            search_stack += chr(key)
+
+        #Fuzz
+        filtered_procs = []
+        for pid,name in procs:
+            score = fuzz.partial_ratio(search_stack, name)
+            if score > 60:
+                filtered_procs.append((score,name,pid))
+        filtered_procs.sort(reverse=True)
+
+        stdscr.erase()
+        stdscr.addstr(0,0,f"{"PID":6}  {"NAME"}")
+        for x in range(min(10,len(filtered_procs))):
+            stdscr.addstr((x+1),0,f"{((filtered_procs[x])[2]):<6}  {((filtered_procs[x])[1])}")
+        stdscr.addstr(11, 0, f"Enter '!' to return to menu")
+        stdscr.addstr(12, 0, f"Search: {search_stack}")
+        stdscr.refresh()
+
 
 def menu() -> None:
     while True:
@@ -90,6 +128,8 @@ def menu() -> None:
             print_running_processes()
         elif choice == "2":
             kill_running_process()
+        elif choice == "3":
+            curses.wrapper(search_running_processes)
         elif choice == "4":
             return
         else:
