@@ -1,4 +1,4 @@
-from modules import system_info, process_manager, file_organizer
+from modules import system_info, process_manager, file_organizer, network_tools
 from utils import helpers
 
 def print_main_menu() -> str:
@@ -21,8 +21,7 @@ if __name__ == "__main__":
         elif choice == "3":
             file_organizer.menu()
         elif choice == "4":
-            #network_tools.menu()
-            pass
+            network_tools.menu()
         elif choice == "5":
             print("Goodbye")
             break

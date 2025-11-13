@@ -49,6 +49,5 @@ def menu() -> None:
         print(f"Total Disk Space: {disk["total_gb"]:.2f} GB")
         print(f"Percent Disk Space Used: {disk["percent"]:.2f}")
         
-        choice = input("Enter anything to return to main menu...")
-        if choice:
-            break 
+        choice = input("\nEnter anything to return to main menu...")
+        break

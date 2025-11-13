@@ -18,6 +18,3 @@ For this project to be considered succesful I need to gather and display...
 4. Network Tools
     - List active network interfaces
     - Scan local network for connected devices
-    - Scan for open ports
-5. Local Logging
-    - Store logs locally
