@@ -2,6 +2,7 @@ import os
 import time
 
 from utils import helpers
+
 def determine_directory_to_clean() -> str:
     while True:
         helpers.clear_console()
